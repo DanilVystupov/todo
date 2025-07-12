@@ -1,12 +1,30 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="todo-form">
-    <input v-model="form.title" type="text" placeholder="Task title" required />
+  <form
+    @submit.prevent="handleSubmit"
+    class="todo-form"
+    :data-disabled="isLoading"
+  >
+    <input
+      v-model="form.title"
+      type="text"
+      class="todo-form__input"
+      placeholder="Заголовок*"
+      required
+    />
+
     <textarea
       v-model="form.description"
-      placeholder="Task description"
+      class="todo-form__textarea"
+      placeholder="Описание"
     ></textarea>
-    <!-- TODO: Не дизейблить кнопку, тк это ухудшает доступность, вместо этого прокидывать data атрибут в форму -->
-    <button type="submit" :disabled="isLoading">Add Task</button>
+
+    <button
+      type="submit"
+      class="todo-form__button"
+      :class="{'todo-form__button--disabled': isLoading}"
+    >
+      ➕ Добавить задачу
+    </button>
   </form>
 </template>
 
@@ -32,20 +50,50 @@ const handleSubmit = async () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.2s ease;
+
+  &[data-disabled="true"] {
+    opacity: 0.7;
+    pointer-events: none;
+  }
 }
-input,
-textarea {
-  padding: 8px;
-  font-size: 16px;
+
+.todo-form__input,
+.todo-form__textarea {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+
+  &:focus-visible {
+    outline: none;
+    border-color: #007bff;
+  }
 }
-button {
-  padding: 10px;
+
+.todo-form__button {
+  align-self: flex-start;
   background-color: #007bff;
   color: white;
+  font-weight: 500;
+  padding: 10px 16px;
+  font-size: 14px;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
-  &:disabled {
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #0069d9;
+  }
+
+  &--disabled {
     background-color: #6c757d;
     cursor: not-allowed;
   }
