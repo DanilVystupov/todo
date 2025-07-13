@@ -2,52 +2,61 @@
   <form
     @submit.prevent="handleSubmit"
     class="todo-form"
-    :data-disabled="isLoading"
+    :data-submitting="isSubmitting"
   >
     <input
       v-model="form.title"
       type="text"
-      class="todo-form__input"
+      name="title"
       placeholder="Заголовок*"
       required
+      class="todo-form__input"
     />
 
     <textarea
       v-model="form.description"
-      class="todo-form__textarea"
+      name="description"
       placeholder="Описание"
+      class="todo-form__textarea"
     ></textarea>
 
     <button
       type="submit"
       class="todo-form__button"
-      :class="{'todo-form__button--disabled': isLoading}"
+      :class="{ 'todo-form__button--submitting': isSubmitting }"
     >
-      ➕ Добавить задачу
+      <Spinner v-if="isSubmitting"/>
+      <span v-else>➕ Добавить задачу</span>
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { useStore } from 'vuex';
+import { ref } from 'vue';
 import type { TodoInput } from '@features/todos/types';
+import { useTodosActions } from '@features/todos/store';
+import Spinner from '@shared/ui/components/spinner/Spinner.vue';
 
-const store = useStore();
+const { addTodo } = useTodosActions();
 const form = ref<TodoInput>({ title: '', description: '' });
-const isLoading = computed(() => store.getters['todos/isLoading']);
+const isSubmitting = ref(false);
 
 const handleSubmit = async () => {
   if (!form.value.title.trim()) return;
-  await store.dispatch('todos/addTodo', { ...form.value });
+
+  isSubmitting.value = true;
+  await addTodo({ ...form.value });
+
   form.value.title = '';
   form.value.description = '';
+
+  isSubmitting.value = false;
 };
 </script>
 
-<style scoped>
+<style lang="scss">
 .todo-form {
-  display: flex;
+  display: flex; 
   flex-direction: column;
   gap: 10px;
   padding: 20px;
@@ -56,7 +65,7 @@ const handleSubmit = async () => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: background-color 0.2s ease;
 
-  &[data-disabled="true"] {
+  &[data-submitting="true"] {
     opacity: 0.7;
     pointer-events: none;
   }
@@ -93,8 +102,8 @@ const handleSubmit = async () => {
     background-color: #0069d9;
   }
 
-  &--disabled {
-    background-color: #6c757d;
+  &--submitting {
+    background-color: #f0f0f0;;
     cursor: not-allowed;
   }
 }

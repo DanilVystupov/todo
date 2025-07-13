@@ -1,7 +1,11 @@
 import { createStore } from 'vuex';
-import { useTodosStore } from '@/features/todos/store/todosStore';
+import { useTodosStore, type TodosStoreState } from '@/features/todos/store';
 
-export default createStore({
+export interface RootState {
+  todos: TodosStoreState;
+}
+
+export default createStore<RootState>({
   modules: {
     todos: useTodosStore,
   },

@@ -6,7 +6,7 @@ export const updateTodo = async (
   id: string,
   updates: Partial<TodoInput>
 ): Promise<Todo> => {
-  await delay(500);
+  await delay(2000);
 
   const index = mockTodos.findIndex((todo) => todo.id === id);
   if (index === -1) throw new Error('Задача не найдена');

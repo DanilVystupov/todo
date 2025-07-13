@@ -6,36 +6,36 @@ import {
   updateTodo
 } from '@shared/api/services/Todos';
 
-import { MutationTypes, type AugmentedActionContext, type TodoState } from './types';
+import { MutationTypes, type AugmentedActionContext, type TodosStoreState } from './types';
 
 export const useTodosStore = {
   namespaced: true,
-  state: (): TodoState => ({
+  state: (): TodosStoreState => ({
     todos: [],
     isLoading: false,
     error: null,
   }),
 
   mutations: {
-    setTodos(state: TodoState, todos: Todo[]) {
+    setTodos(state: TodosStoreState, todos: Todo[]) {
       state.todos = todos;
     },
-    setisLoading(state: TodoState, isLoading: boolean) {
+    setisLoading(state: TodosStoreState, isLoading: boolean) {
       state.isLoading = isLoading;
     },
-    setError(state: TodoState, error: string | null) {
+    setError(state: TodosStoreState, error: string | null) {
       state.error = error;
     },
-    addTodo(state: TodoState, todo: Todo) {
+    addTodo(state: TodosStoreState, todo: Todo) {
       state.todos.push(todo);
     },
-    updateTodo(state: TodoState, updatedTodo: Todo) {
+    updateTodo(state: TodosStoreState, updatedTodo: Todo) {
       const index = state.todos.findIndex((t) => t.id === updatedTodo.id);
       if (index !== -1) {
         state.todos[index] = updatedTodo;
       }
     },
-    deleteTodo(state: TodoState, id: string) {
+    deleteTodo(state: TodosStoreState, id: string) {
       state.todos = state.todos.filter((t) => t.id !== id);
     },
   },
@@ -95,8 +95,8 @@ export const useTodosStore = {
   },
 
   getters: {
-    todos: (state: TodoState) => state.todos,
-    isLoading: (state: TodoState) => state.isLoading,
-    error: (state: TodoState) => state.error,
+    todos: (state: TodosStoreState) => state.todos,
+    isLoading: (state: TodosStoreState) => state.isLoading,
+    error: (state: TodosStoreState) => state.error,
   },
 };

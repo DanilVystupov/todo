@@ -3,7 +3,6 @@
     <span class="loader__dot"></span>
     <span class="loader__dot"></span>
     <span class="loader__dot"></span>
-    <span class="loader__text">Loading</span>
   </div>
 </template>
 
@@ -14,7 +13,6 @@
   justify-content: center;
   gap: 6px;
   padding: 20px;
-  font-family: 'Segoe UI', sans-serif;
   position: relative;
 }
 
@@ -36,14 +34,6 @@
   animation-delay: 0.3s;
 }
 
-.loader__text {
-  font-size: 16px;
-  color: #007bff;
-  font-weight: 500;
-  margin-left: 10px;
-  animation: fadeIn 1.5s ease-in-out infinite alternate;
-}
-
 @keyframes bounce {
   0%, 80%, 100% {
     transform: scale(0.9);
@@ -52,17 +42,6 @@
   40% {
     transform: scale(1.3);
     opacity: 1;
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0.3;
-    transform: translateX(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 }
 </style>

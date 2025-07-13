@@ -4,7 +4,7 @@ import { generateId } from '@shared/utils';
 import type { Todo, TodoInput } from '@features/todos/types';
 
 export const addTodo = async (input: TodoInput): Promise<Todo> => {
-  await delay(500);
+  await delay(2000);
   const newTodo: Todo = {
     id: generateId(),
     title: input.title,

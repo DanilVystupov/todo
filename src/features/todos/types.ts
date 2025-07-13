@@ -9,4 +9,5 @@ export interface Todo {
 export interface TodoInput {
   title: string;
   description?: string;
+  completed?: boolean;
 }

@@ -8,12 +8,14 @@
 import TodoItem from '../todoItem/TodoItem.vue';
 import type { Todo } from '@features/todos/types';
 
-const props = defineProps<{
+type Props = {
   todos: Todo[];
-}>();
+}
+
+const props = defineProps<Props>();
 </script>
 
-<style scoped>
+<style lang="scss">
 .todo-list {
   display: flex;
   flex-direction: column;

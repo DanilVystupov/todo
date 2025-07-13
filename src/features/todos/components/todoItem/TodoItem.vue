@@ -2,6 +2,7 @@
   <div class="todo-item">
     <div class="todo-item__left">
       <input
+        v-if="!isEditMode"
         type="checkbox"
         class="todo-item__checkbox"
         :checked="todo.completed"
@@ -9,7 +10,7 @@
       />
 
       <div class="todo-item__content">
-        <div v-if="!isEditing">
+        <div v-if="!isEditMode">
           <h3
             class="todo-item__title"
             :class="{ 'todo-item__title--completed': todo.completed }"
@@ -17,118 +18,93 @@
             {{ todo.title }}
           </h3>
 
-          <p
-            v-if="todo.description"
-            class="todo-item__description"
-          >
+          <p v-if="todo.description" class="todo-item__description">
             {{ todo.description }}
           </p>
 
-          <small class="todo-item__date">{{ todo.createdAt.toLocaleDateString() }}</small>
+          <small class="todo-item__date">
+            {{ todo.createdAt.toLocaleDateString() }}
+          </small>
         </div>
 
-        <div v-else class="todo-item__edit-form">
-          <input
-            class="todo-item__input"
-            v-model="editedTitle"
-            required
-          />
-
-          <textarea
-            class="todo-item__textarea"
-            v-model="editedDescription"
-          />
-        </div>
+        <TodoEditForm
+          v-else
+          :title="todo.title"
+          :description="todo.description"
+          :loading="isSubmitting"
+          @save="saveEdit"
+          @cancel="cancelEdit"
+        />
       </div>
     </div>
 
-    <div class="todo-item__actions">
-      <template v-if="!isEditing">
-        <button
-          class="todo-item__button todo-item__button--edit"
-          @click="startEdit"
-        >
-          ✏️ Редактировать
-        </button>
+    <div
+      v-if="!isEditMode"
+      class="todo-item__actions"
+    >
+      <button
+        class="todo-item__button todo-item__button--edit"
+        @click="startEdit"
+      >
+        ✏️ Редактировать
+      </button>
 
+      <div>
+        <Spinner v-if="isSubmitting" />
         <button
+          v-else
           class="todo-item__button todo-item__button--delete"
           @click="handleDelete"
         >
           🗑 Удалить
         </button>
-      </template>
-
-      <template v-else>
-        <button
-          class="todo-item__button todo-item__button--save"
-          @click="saveEdit"
-        >
-          💾 Сохранить
-        </button>
-        
-        <button
-          class="todo-item__button todo-item__button--cancel"
-          @click="cancelEdit"
-        >
-          ❌ Отмена
-        </button>
-      </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useStore } from 'vuex';
 import { ref } from 'vue';
-import type { Todo, TodoInput } from '@features/todos/types';
+import type { Todo } from '@features/todos/types';
+import { useTodosActions } from '@features/todos/store';
+import Spinner from '@/shared/ui/components/spinner/Spinner.vue';
+import TodoEditForm from '@features/todos/components/todoEditForm/TodoEditForm.vue';
 
 const props = defineProps<{ todo: Todo }>();
-const store = useStore();
+const { updateTodo, deleteTodo } = useTodosActions();
 
-const isEditing = ref(false);
-const editedTitle = ref(props.todo.title);
-const editedDescription = ref(props.todo.description || '');
+const isEditMode = ref(false);
+const isSubmitting = ref(false);
 
-const toggleCompleted = () => {
-  store.dispatch('todos/updateTodo', {
-    id: props.todo.id.toString(),
-    updates: { completed: !props.todo.completed } as Partial<TodoInput>,
-  });
-};
-
-const handleDelete = () => {
-  store.dispatch('todos/deleteTodo', props.todo.id.toString());
+const toggleCompleted = async () => {
+  await updateTodo(props.todo.id, { completed: !props.todo.completed });
 };
 
 const startEdit = () => {
-  editedTitle.value = props.todo.title;
-  editedDescription.value = props.todo.description || '';
-  isEditing.value = true;
+  isEditMode.value = true;
 };
 
 const cancelEdit = () => {
-  isEditing.value = false;
-  editedTitle.value = props.todo.title;
-  editedDescription.value = props.todo.description || '';
+  isEditMode.value = false;
 };
 
-const saveEdit = () => {
-  if (!editedTitle.value.trim()) return;
+const saveEdit = async ({ title, description }: { title: string; description?: string }) => {
+  isSubmitting.value = true;
 
-  store.dispatch('todos/updateTodo', {
-    id: props.todo.id.toString(),
-    updates: {
-      title: editedTitle.value,
-      description: editedDescription.value,
-    } as Partial<TodoInput>,
-  });
+  await updateTodo(props.todo.id, { title, description });
 
-  isEditing.value = false;
+  isSubmitting.value = false;
+  isEditMode.value = false;
+};
+
+const handleDelete = async () => {
+  isSubmitting.value = true;
+  await deleteTodo(props.todo.id);
+  isSubmitting.value = false;
 };
 </script>
 
-<style scoped>
+<style lang="scss">
 .todo-item {
   display: flex;
   justify-content: space-between;
@@ -185,12 +161,6 @@ const saveEdit = () => {
   color: #999;
 }
 
-.todo-item__edit-form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
 .todo-item__input,
 .todo-item__textarea {
   padding: 8px 10px;
@@ -227,24 +197,6 @@ const saveEdit = () => {
 
     &:hover {
       background-color: #e2e2e2;
-    }
-  }
-
-  &--save {
-    background-color: #28a745;
-    color: white;
-
-    &:hover {
-      background-color: #218838;
-    }
-  }
-
-  &--cancel {
-    background-color: #ffc107;
-    color: #333;
-
-    &:hover {
-      background-color: #e0a800;
     }
   }
 
